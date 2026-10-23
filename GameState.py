@@ -1,44 +1,55 @@
 from hosts import Host
-from hosts import *
+
 import copy
 
 class GameState:
-    def __init__(self, hosts:list,turn:bool = True,ply_count:int = 0, defender_budget:int = 10, attacker_zeroday:bool = True,exfiltrated:bool = False):
+    def __init__(self, hosts:list[Host],turn:bool = True,ply_count:int = 0,start_host:Host = None,end_host:Host = None,
+                  defender_budget:int = 10, attacker_zeroday:bool = True,exfiltrated:bool = False):
         self.hosts = hosts
         self.turn = turn  # attacker's turn if True, defender's turn if False
-        self.ply_count = ply_count
-        self.defender_budget = defender_budget
+        self.start_host = start_host            # H0 always in this assignment
+        self.end_host = end_host                # H5 always in this assignment
+        self.ply_count = ply_count              # 10 always in this assignment
+        self.defender_budget = defender_budget  # 10 always in this assignment
         self.attacker_zerodays= attacker_zeroday
         self.exfiltrated= exfiltrated
 
-    def _get_attackable_hosts(self) -> set[str]:
-        attackable_hosts = set()
-        for host in self.hosts:
+        if self.start_host is not None:
+            self.start_host.compromised = True  # The initial host is always compromised at the start of the game
+        
+        
 
+    #this functions returns a set of host ids that are attackable by the attacker in the current state
+    def _get_attackable_hosts(self) -> set[str]:
+        attackable_hosts = set() #a set is used to avoid duplicates in a simpler way
+
+        for host in self.hosts:
             if host.compromised and not host.isolated:
                 for neighbor in host.get_connections_list():
                         attackable_hosts.add(neighbor)
         return attackable_hosts
             
   
-
-    def get_possible_actions(self) -> list[tuple[str, str]]: #returns a list of possible moves  where each move is (action,target)
+    #returns a list of possible moves  where each move is (action,target) 
+    def get_possible_actions(self) -> list[tuple[str, str]]: 
         actions=[]
 
         if self.turn:  # Attacker's turn
             attackable_hosts = self._get_attackable_hosts()
+
             for host in self.hosts:
-                if host.id == "H0":
+                if host.id == self.start_host.id:
                     continue  # Skip the initial host, as it cannot be exploited
                 
-                elif host.id == "H5" and host.compromised and not host.isolated:
+                elif host.id == self.end_host.id and host.compromised and not host.isolated:
                     actions.append(("exfiltrate",host.id))
                     continue
 
                 elif not host.compromised and not host.isolated:
-                    # check if there is a valid path to the host 
+
+                    # skip it if there is no path to it from any compromised host
                     if not host.id in attackable_hosts:
-                        continue  # Skip this host if there is no valid path to it
+                        continue 
 
                     if not host.patched:
                         actions.append(("exploit",host.id))
@@ -51,7 +62,7 @@ class GameState:
 
         else:  # Defender's turn
             for host in self.hosts:
-                if host.id == "H0":
+                if host.id == self.start_host.id:
                     continue  # Skip the initial host, as it cannot be exploited
                 
                 if not host.compromised and not host.patched and self.defender_budget >= 2:
@@ -67,11 +78,12 @@ class GameState:
 
         return actions
 
-    def end_game(self):
-        return
+
 
     # actions are : "exploit", "zeroday", "exfiltrate", "patch", "isolate", "restore", "pass"
-    def apply_action(self, action:tuple[str, str]) -> GameState:
+    # the function returns a new GameState object that is the result of applying the action to the current state
+    # which is easier and more efficient than modifying the current state in place and reverting it back later
+    def apply_action(self, action:tuple[str, str]) -> GameState: #typegame state might be a problem later 
         new_state= copy.deepcopy(self)
         action_type ,target_id  = action
 
@@ -88,19 +100,23 @@ class GameState:
         ## attacker actions
         if action_type == "exploit":
             target.compromised = True
+
         elif action_type == "zeroday":
             target.compromised = True
             new_state.attacker_zerodays = False
+
         elif action_type == "exfiltrate":
             new_state.exfiltrated = True
 
         ## defender actions
         elif action_type == "patch":
-            target.patched = True
+            target.patched = True 
             new_state.defender_budget -= 2
+
         elif action_type == "isolate":
             target.isolated = True
             new_state.defender_budget -= 8
+
         elif action_type == "restore":
             target.compromised = False
             target.patched = True
@@ -108,17 +124,18 @@ class GameState:
 
         return new_state
 
-    def is_terminal(self) -> bool:
+    # returns True if the game has ended, False otherwise
+    def is_done(self) -> bool:
         # Check if the game has ended
         if self.ply_count >= 10:
             return True
-        host_h5 = next((host for host in self.hosts if host.id == "H5"), None)
 
         if self.exfiltrated:
             return True
 
         return False
 
+    # returns the utility of the current state from the perspective of the defender
     def get_util(self) -> int:
         #defender util fn , attacker util fn is just the negative of this
         x = 1 if self.exfiltrated else 0
