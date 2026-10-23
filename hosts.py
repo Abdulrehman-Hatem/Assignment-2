@@ -9,6 +9,8 @@ class Host:
         self.compromised = compromised
         self.patched = patched
         self.isolated = isolated
-        
+
+    def get_connections_list(self) -> list[str]:
+        return [conn.id for conn in self.connections]
 
     
