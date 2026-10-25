@@ -94,6 +94,9 @@ class GameState:
         new_state.ply_count += 1
         new_state.turn = not new_state.turn  # Switch turns
 
+        if (self.turn and action_type in ["patch", "isolate", "restore"]) or (not self.turn and action_type in ["exploit", "zeroday", "exfiltrate"]):
+            raise ValueError(f"Invalid action {action_type} for the current turn.")
+        
         if action_type == "pass":
             return new_state
         
@@ -121,6 +124,8 @@ class GameState:
             target.compromised = False
             target.patched = True
             new_state.defender_budget -= 5
+        else:
+            raise ValueError(f"Unknown action type: {action_type}")
 
         return new_state
 
@@ -145,13 +150,14 @@ class GameState:
 
     def __str__(self) -> str:
         #print the current states info in a human readable format
-        state  = "===================================================\n"
+        state  = "="*60 + "\n"
         state += f"Turn: {'Attacker' if self.turn else 'Defender'} \nCurrent ply Count: {self.ply_count} \n"
         state += f"defender Budget: {self.defender_budget} \nAttacker Zerodays: {self.attacker_zerodays} \n"
-        state += "===================================================\n"
+        state += "="*60 + "\n"
     
         #hosts info
         state += "ID   |Value |Compromised |Patched |Isolated      \n"
+        state+="============================================\n"
         for host in self.hosts:
             comp_status = "Compromised " if host.compromised else "            "
             patch_status = "Patched " if host.patched else "        "
