@@ -37,5 +37,6 @@ def  main():
 
     game_state = create_assignment_game_state_list()
 
-
+    print(game_state)
+    
 main()

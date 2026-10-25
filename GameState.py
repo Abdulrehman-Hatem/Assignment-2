@@ -142,4 +142,20 @@ class GameState:
         sum_assets = sum(host.value for host in self.hosts if host.compromised)
 
         return -(sum_assets)-(10-self.defender_budget)- (100 * x)
+
+    def __str__(self) -> str:
+        #print the current states info in a human readable format
+        state  = "===================================================\n"
+        state += f"Turn: {'Attacker' if self.turn else 'Defender'} \nCurrent ply Count: {self.ply_count} \n"
+        state += f"defender Budget: {self.defender_budget} \nAttacker Zerodays: {self.attacker_zerodays} \n"
+        state += "===================================================\n"
     
+        #hosts info
+        state += "ID   |Value |Compromised |Patched |Isolated      \n"
+        for host in self.hosts:
+            comp_status = "Compromised " if host.compromised else "            "
+            patch_status = "Patched " if host.patched else "        "
+            iso_status = "Isolated    " if host.isolated else "           "
+
+            state += f"{host.id :<4} |{host.value:<5} |{comp_status}|{patch_status}|{iso_status}\n" 
+        return state
