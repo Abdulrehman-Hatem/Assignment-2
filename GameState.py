@@ -3,19 +3,20 @@ from hosts import Host
 import copy
 
 class GameState:
-    def __init__(self, hosts:list[Host],turn:bool = True,ply_count:int = 0,start_host:Host = None,end_host:Host = None,
+    def __init__(self, hosts:list[Host],turn:bool = True,ply_count:int = 0,start_host:str = None,end_host:str = None,
                   defender_budget:int = 10, attacker_zeroday:bool = True,exfiltrated:bool = False):
         self.hosts = hosts
         self.turn = turn  # attacker's turn if True, defender's turn if False
         self.start_host = start_host            # H0 always in this assignment
         self.end_host = end_host                # H5 always in this assignment
-        self.ply_count = ply_count              # 10 always in this assignment
+        self.ply_count = ply_count              # 10 always 
         self.defender_budget = defender_budget  # 10 always in this assignment
         self.attacker_zerodays= attacker_zeroday
         self.exfiltrated= exfiltrated
 
         if self.start_host is not None:
-            self.start_host.compromised = True  # The initial host is always compromised at the start of the game
+            start_host_obj = next((host for host in self.hosts if host.id == self.start_host), None)
+            start_host_obj.compromised = True  # The initial host is always compromised at the start of the game
         
         
 
@@ -25,7 +26,7 @@ class GameState:
 
         for host in self.hosts:
             if host.compromised and not host.isolated:
-                for neighbor in host.get_connections_list():
+                for neighbor in host.connections:
                         attackable_hosts.add(neighbor)
         return attackable_hosts
             
@@ -38,10 +39,10 @@ class GameState:
             attackable_hosts = self._get_attackable_hosts()
 
             for host in self.hosts:
-                if host.id == self.start_host.id:
+                if host.id == self.start_host:
                     continue  # Skip the initial host, as it cannot be exploited
                 
-                elif host.id == self.end_host.id and host.compromised and not host.isolated:
+                elif host.id == self.end_host and host.compromised and not host.isolated:
                     actions.append(("exfiltrate",host.id))
                     continue
 
@@ -62,7 +63,7 @@ class GameState:
 
         else:  # Defender's turn
             for host in self.hosts:
-                if host.id == self.start_host.id:
+                if host.id == self.start_host:
                     continue  # Skip the initial host, as it cannot be exploited
                 
                 if not host.compromised and not host.patched and self.defender_budget >= 2:
@@ -83,7 +84,7 @@ class GameState:
     # actions are : "exploit", "zeroday", "exfiltrate", "patch", "isolate", "restore", "pass"
     # the function returns a new GameState object that is the result of applying the action to the current state
     # which is easier and more efficient than modifying the current state in place and reverting it back later
-    def apply_action(self, action:tuple[str, str]) -> GameState: #typegame state might be a problem later 
+    def apply_action(self, action:tuple[str, str]) -> "GameState": 
         new_state= copy.deepcopy(self)
         action_type ,target_id  = action
 
