@@ -18,8 +18,8 @@ A Python implementation of the two-player zero-sum cybersecurity board game acro
 
 Clone the repository and navigate to the project directory:
 ```bash
-git clone <your-repo-url>
-cd <your-repo-folder>
+git clone https://github.com/Abdulrehman-Hatem/Assignment-2.git
+cd Assignment-2
 ```
 
 ## How to Run

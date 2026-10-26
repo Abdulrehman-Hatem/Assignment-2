@@ -55,20 +55,26 @@ def  main():
         match x:
             case 0:
                 return 
+            
             case 1:
                 run_task_1_tests(game_state.copy())
+
             case 2:
                 run_minmax_test(game_state.copy())
+
             case 3:
                 y= input("Enter depth limit for Minimax: ")
                 y = int(y) if y.isdigit() else 3
                 run_minmax_test(game_state.copy(), y)
+
             case 4:
                 run_alpha_beta_depth_test(game_state.copy())
+
             case 5:
                 y= input("Enter depth limit for Alpha-Beta Pruning: ")
                 y = int(y) if y.isdigit() else 3
                 run_alpha_beta_depth_test(game_state.copy(), y)
+
             case _:
                 print("Invalid choice. Please try again.")
     
