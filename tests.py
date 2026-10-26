@@ -9,13 +9,16 @@ import time
 
 
 #helper function to print results
-def print_results(game_state: GameState, start_time: float, end_time: float):
+def print_results(game_state: GameState, start_time: float, end_time: float, total_nodes_evaluated: int):
     print("\nFinal State after Algorithm:")
     print(game_state)
     print(f"- Did game end? (is_done): {game_state.is_done()}")
     print(f"- Was data exfiltrated?: {game_state.exfiltrated}")
     print(f"- Final Utility (Defender perspective): {game_state.get_util()}")
     print(f"- Total Time Taken: {end_time - start_time:.4f} seconds")
+    print(f"- Number of nodes evaluated: {total_nodes_evaluated}")
+    print("\n" + "="*60)
+
 
 
 def run_task_1_tests(state: GameState):
@@ -86,52 +89,60 @@ def run_task_1_tests(state: GameState):
     print("\n" + "="*60)
 
 def run_minmax_test(state: GameState, depth: int = None):
+
     print("\n" + "="*60)
+
     if depth is None:
-        print("TEST CASE 4: Demonstrating Minimax Algorithm")
+        print("--Demonstrating Minimax Algorithm--")
     else:
-        print(f"TEST CASE 5: Demonstrating Depth-Limited Minimax Algorithm (Depth: {depth})")
+        print(f"--Demonstrating Depth-Limited Minimax Algorithm (Depth: {depth})--")
     print("="*60)
     
     # Start fresh game
     state_copy = state.copy()
     print("Initial State (Attacker's Turn):")
     print(state_copy)
+    print("="*60)
 
+    total_nodes_evaluated = 0
     timer_start = time.time()
 
     # Run Depth-Limited Minimax till game ends
     while not state_copy.is_done():
         score, best_action, node_count = minimax(state_copy, depth)
-        print(f"- Depth-Limited Minimax Result: Best Action: {best_action}, Score: {score}, Nodes Evaluated: {node_count}")
+        print(f"- Minimax Result: Best Action: {best_action}, Score: {score}, Nodes Evaluated: {node_count}")
         state_copy = state_copy.apply_action(best_action)
+        total_nodes_evaluated += node_count
 
     timer_end = time.time()
 
-    print_results(state_copy, timer_start, timer_end)
+    print_results(state_copy, timer_start, timer_end, total_nodes_evaluated)
 
 
 def run_alpha_beta_depth_test(state: GameState, depth: int = None):
     print("\n" + "="*60)
     if depth is None:
-        print("TEST CASE 6: Demonstrating Alpha-Beta Pruning Algorithm")
+        print("--Demonstrating Alpha-Beta Pruning Algorithm--")
     else:
-        print(f"TEST CASE 7: Demonstrating Depth-Limited Alpha-Beta Pruning Algorithm (Depth: {depth})")
+        print(f"--Demonstrating Depth-Limited Alpha-Beta Pruning Algorithm (Depth: {depth})--")
     print("="*60)
     
     # Start fresh game
     state_copy = state.copy()
     print("Initial State (Attacker's Turn):")
     print(state_copy)
+    print("="*60)
 
     timer_start = time.time()
+    total_nodes_evaluated = 0
 
-    # Run Depth-Limited Alpha-Beta Pruning till game ends
+    # Run Alpha-Beta Pruning till game ends
     while not state_copy.is_done():
         score, best_action, node_count = alpha_beta(state_copy, depth)
-        print(f"- Depth-Limited Alpha-Beta Result: Best Action: {best_action}, Score: {score}, Nodes Evaluated: {node_count}")
+        print(f"- Alpha-Beta Result: Best Action: {best_action}, Score: {score}, Nodes Evaluated: {node_count}")
         state_copy = state_copy.apply_action(best_action)
+        total_nodes_evaluated += node_count
 
     timer_end = time.time()
 
-    print_results(state_copy, timer_start, timer_end)
+    print_results(state_copy, timer_start, timer_end, total_nodes_evaluated)

@@ -29,7 +29,7 @@ def get_task():
     print("Enter the number corresponding to the task you want to run:")
     print("0--Exit")
     print("1--Demonstrate Legal Moves, Patching, and Winning")
-    print("2--Run Minimax Algorithm")
+    print("2--Run Minimax Algorithm (full depth -- SLOW)")
     print("3--Run Minimax Algorithm with Depth Limit")
     print("4--Run Alpha-Beta Pruning Algorithm")
     print("5--Run Alpha-Beta Pruning Algorithm with Depth Limit")
@@ -47,13 +47,11 @@ def  main():
     while True:
         x=get_task()
   
-        try:
-            x = int(x)
-        except ValueError:
-            print("Invalid input. Please enter a valid integer.")
+        if not x.isdigit():
+            print("Invalid input. Please enter a number.")
             continue
         
-
+        x = int(x)
         match x:
             case 0:
                 return 
@@ -63,14 +61,17 @@ def  main():
                 run_minmax_test(game_state.copy())
             case 3:
                 y= input("Enter depth limit for Minimax: ")
-                run_minmax_test(game_state.copy(), int(y))
+                y = int(y) if y.isdigit() else 3
+                run_minmax_test(game_state.copy(), y)
             case 4:
                 run_alpha_beta_depth_test(game_state.copy())
             case 5:
                 y= input("Enter depth limit for Alpha-Beta Pruning: ")
-                run_alpha_beta_depth_test(game_state.copy(), int(y))
+                y = int(y) if y.isdigit() else 3
+                run_alpha_beta_depth_test(game_state.copy(), y)
             case _:
                 print("Invalid choice. Please try again.")
     
     
-main()
+if __name__ == "__main__":
+    main()
