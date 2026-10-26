@@ -1,6 +1,6 @@
 from hosts import Host
 
-import copy
+
 
 class GameState:
     def __init__(self, hosts:list[Host],turn:bool = True,ply_count:int = 0,start_host:str = None,end_host:str = None,
@@ -85,7 +85,7 @@ class GameState:
     # the function returns a new GameState object that is the result of applying the action to the current state
     # which is easier and more efficient than modifying the current state in place and reverting it back later
     def apply_action(self, action:tuple[str, str]) -> "GameState": 
-        new_state= copy.deepcopy(self)
+        new_state= self.copy()
         action_type ,target_id  = action
 
         target = next((host for host in new_state.hosts if host.id == target_id), None)
@@ -166,3 +166,17 @@ class GameState:
 
             state += f"{host.id :<4} |{host.value:<5} |{comp_status}|{patch_status}|{iso_status}\n" 
         return state
+
+    def copy(self) -> "GameState":
+        #returns a deep copy of the current state
+        turn = self.turn
+        start_host = self.start_host
+        end_host = self.end_host
+        ply_count = self.ply_count
+        defender_budget = self.defender_budget
+        attacker_zeroday = self.attacker_zerodays
+        exfiltrated = self.exfiltrated
+        hosts = [host.copy() for host in self.hosts]
+
+        return GameState(hosts=hosts, turn=turn, ply_count=ply_count, start_host=start_host, end_host=end_host,
+                         defender_budget=defender_budget, attacker_zeroday=attacker_zeroday, exfiltrated=exfiltrated)

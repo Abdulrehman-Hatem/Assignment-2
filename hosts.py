@@ -10,5 +10,14 @@ class Host:
         self.patched = patched
         self.isolated = isolated
 
+    def copy(self):
+        return Host(
+            id=self.id,
+            value=self.value,
+            connections=self.connections.copy(),
+            compromised=self.compromised,
+            patched=self.patched,
+            isolated=self.isolated
+        )
 
     
