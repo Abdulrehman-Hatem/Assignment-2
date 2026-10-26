@@ -106,8 +106,8 @@ def  main():
         print(f"Current Game State (Turn: {'Attacker' if game_state.turn else 'Defender'}):")
         print(game_state)
         
-        # Get the best action using minimax
-        score, best_action = minimax(game_state, depth=3)  # You can adjust depth as needed
+       
+        score, best_action = minimax(game_state, depth=3)  
         print(f"- Best action determined by Minimax: {best_action} with score: {score}")
         
         # Apply the best action to the game state
