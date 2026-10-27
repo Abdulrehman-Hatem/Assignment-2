@@ -142,23 +142,50 @@ class GameState:
         return False
 
     # returns the utility of the current state from the perspective of the defender
-    def get_util(self) -> int:
-        #defender util fn , attacker util fn is just the negative of this
-        x = 1 if self.exfiltrated else 0
-        sum_assets = sum(host.value for host in self.hosts if host.compromised)
+    # the utility will use a huristic function if not ata terminal state.
 
-        return -(sum_assets)-(10-self.defender_budget)- (100 * x)
+    def get_util(self) -> float:
+        # Defender util fn; Attacker util fn is just the negative of this
+        sum_assets = sum(host.value for host in self.hosts if host.compromised)
+        spent = 10 - self.defender_budget
+
+        if self.is_done():
+            x = 1 if self.exfiltrated else 0
+            return -(sum_assets) - spent - (100 * x)
+        # AI heuristic evaluation for non-terminal states 
+        else:
+            # Heuristic evaluation for non-terminal cutoff states
+            score = -(sum_assets) - spent
+            attackable = self._get_attackable_hosts()
+
+            for host in self.hosts:
+                if host.id == self.start_host:
+                    continue
+
+                # 1. Immediate threat to the crown-jewel database (H5)
+                if host.id == self.end_host:
+                    if host.compromised and not host.isolated:
+                        score -= 80  # H5 is compromised and can be exfiltrated (-100) next turn
+                    elif host.id in attackable and not host.isolated:
+                        if not host.patched or self.attacker_zerodays:
+                            score -= 40  # H5 is directly adjacent to a compromised host (H3/H7)
+
+                # 2. Exposure penalty for reachable, uncompromised neighbors
+                elif host.id in attackable and not host.compromised and not host.isolated:
+                    if not host.patched:
+                        score -= 0.4 * host.value  # Vulnerable to normal exploit
+                    elif self.attacker_zerodays:
+                        score -= 0.2 * host.value  # Patched, but Attacker still holds Zero-Day
+
+            return round(score, 2)
+
 
     def __str__(self) -> str:
         #print the current states info in a human readable format
-        state  = "="*60 + "\n"
-        state += f"Turn: {'Attacker' if self.turn else 'Defender'} \nCurrent ply Count: {self.ply_count} \n"
-        state += f"defender Budget: {self.defender_budget} \nAttacker Zerodays: {self.attacker_zerodays} \n"
-        state += "="*60 + "\n"
-    
-        #hosts info
+
+        state="="*44+"\n"
         state += "ID   |Value |Compromised |Patched |Isolated      \n"
-        state+="============================================\n"
+        state+="="*44+"\n"
         for host in self.hosts:
             comp_status = "Compromised " if host.compromised else "            "
             patch_status = "Patched " if host.patched else "        "

@@ -1,5 +1,3 @@
-
-
 class Host:
 
     def __init__(self, id:str, value:int, connections:list[str], compromised:bool=False, patched:bool=False, isolated:bool=False):

@@ -1,7 +1,7 @@
 from  hosts import Host
 from GameState import GameState
 from algos import minimax
-from tests import *
+from tests import run_minmax_test, run_alpha_beta_depth_test,run_task_1_tests
 
 
 def create_assignment_game_state_list() -> GameState:
@@ -77,6 +77,8 @@ def  main():
 
             case _:
                 print("Invalid choice. Please try again.")
+
+
     
     
 if __name__ == "__main__":
