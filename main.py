@@ -7,16 +7,16 @@ from tests import run_minmax_test, run_alpha_beta_depth_test,run_task_1_tests
 def create_assignment_game_state_list() -> GameState:
     # 1. Create all hosts with empty connection lists first
     hosts = [
-        Host(id="H0", value=0, connections=["H1", "H2"]),    # index 0
+        Host(id="H0", value=0, connections=["H1", "H2"]),          # index 0
         Host(id="H1", value=10, connections=["H0", "H3", "H4"]),   # index 1
-        Host(id="H2", value=15, connections=["H0", "H4"]),   # index 2
+        Host(id="H2", value=15, connections=["H0", "H4"]),         # index 2
         Host(id="H3", value=30, connections=["H1", "H5", "H6"]),   # index 3
         Host(id="H4", value=10, connections=["H1", "H2", "H6"]),   # index 4
-        Host(id="H5", value=100, connections=["H3", "H7"]),  # index 5
+        Host(id="H5", value=100, connections=["H3", "H7"]),        # index 5
         Host(id="H6", value=60, connections=["H3", "H4", "H7"]),   # index 6
         Host(id="H7", value=25, connections=["H5", "H6", "H8"]),   # index 7
-        Host(id="H8", value=20, connections=["H7", "H9"]),   # index 8
-        Host(id="H9", value=40, connections=["H8"])    # index 9
+        Host(id="H8", value=20, connections=["H7", "H9"]),         # index 8
+        Host(id="H9", value=40, connections=["H8"])                # index 9
     ]
 
     # 2. Initialize and return the GameState
